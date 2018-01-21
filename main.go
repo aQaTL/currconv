@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -71,11 +72,10 @@ func getRate(rateID string) float64 {
 }
 
 func validArgs(args []string) (float64, string, string) {
-	if len(args) < 4 {
+	if len(args) != 3 {
 		handleError("Usage:\n  currconv [amount] [from currency] [to currency]\n" +
 			"Example:\n  currconv 100 usd pln")
 	}
-	args = args[1:] //Remove program name
 
 	from, to := strings.ToUpper(args[1]), strings.ToUpper(args[2])
 	if !isValidCurrency(from) || !isValidCurrency(to) {
@@ -90,11 +90,18 @@ func validArgs(args []string) (float64, string, string) {
 	return amount, from, to
 }
 
+var shortFormat = flag.Bool("short", false, "Print only the converted value")
+
 func main() {
-	amount, from, to := validArgs(os.Args)
+	flag.Parse()
+	amount, from, to := validArgs(flag.Args())
 
 	result := amount * getRate(from+"_"+to)
 	fromCurrency, toCurrency := getCurrencyNames(from, to)
 
-	fmt.Printf("%.2f %s = %.2f %s\n", amount, fromCurrency, result, toCurrency)
+	if !*shortFormat {
+		fmt.Printf("%.2f %s = %.2f %s\n", amount, fromCurrency, result, toCurrency)
+	} else {
+		fmt.Printf("%.2f\n", result)
+	}
 }
