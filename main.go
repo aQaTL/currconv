@@ -71,16 +71,17 @@ func getRate(rateID string) float64 {
 }
 
 func validArgs(args []string) (float64, string, string) {
-	if len(args) < 5 {
+	if len(args) < 4 {
 		handleError("Insufficient arguments")
 	}
+	args = args[1:] //Remove program name
 
-	from, to := strings.ToUpper(args[2]), strings.ToUpper(args[4])
+	from, to := strings.ToUpper(args[1]), strings.ToUpper(args[2])
 	if !isValidCurrency(from) || !isValidCurrency(to) {
 		handleError("Invalid currency code")
 	}
 
-	amount, err := strconv.ParseFloat(args[1], 64)
+	amount, err := strconv.ParseFloat(args[0], 64)
 	if err != nil {
 		handleError("Invalid value for conversion")
 	}
