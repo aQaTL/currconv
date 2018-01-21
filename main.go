@@ -95,5 +95,5 @@ func main() {
 	result := amount * getRate(from+"_"+to)
 	fromCurrency, toCurrency := getCurrencyNames(from, to)
 
-	fmt.Println(amount, fromCurrency, "=", result, toCurrency)
+	fmt.Printf("%.2f %s = %.2f %s\n", amount, fromCurrency, result, toCurrency)
 }
