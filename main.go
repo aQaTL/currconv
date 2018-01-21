@@ -72,7 +72,8 @@ func getRate(rateID string) float64 {
 
 func validArgs(args []string) (float64, string, string) {
 	if len(args) < 4 {
-		handleError("Insufficient arguments")
+		handleError("Usage:\n  currconv [amount] [from currency] [to currency]\n" +
+			"Example:\n  currconv 100 usd pln")
 	}
 	args = args[1:] //Remove program name
 
