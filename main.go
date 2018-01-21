@@ -42,8 +42,8 @@ func isValidCurrency(currencyID string) bool {
 	return currencyName != ""
 }
 
-func handleError(message string) {
-	fmt.Println(message)
+func handleError(msg string) {
+	fmt.Fprintln(os.Stderr, msg)
 	os.Exit(1)
 }
 
