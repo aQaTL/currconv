@@ -4,11 +4,21 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/aqatl/fileutils"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+const Usage = `Usage:
+  currconv [amount] [from currency] [to currency]
+Example:
+  currconv 100 usd pln`
+
+const CfgFile = "cfg.txt"
 
 type CurrencyData struct {
 	Currencies map[string]Currency `json:"results"`
@@ -72,9 +82,20 @@ func getRate(rateID string) float64 {
 }
 
 func validArgs(args []string) (float64, string, string) {
+	if len(args) == 2 {
+		exec, err := os.Executable()
+		if err != nil {
+			handleError(err.Error())
+		}
+		path := filepath.Join(filepath.Dir(exec), CfgFile)
+		to, err := fileutils.LoadToString(path)
+		if err != nil {
+			handleError(Usage)
+		}
+		args = append(args, to)
+	}
 	if len(args) != 3 {
-		handleError("Usage:\n  currconv [amount] [from currency] [to currency]\n" +
-			"Example:\n  currconv 100 usd pln")
+		handleError(Usage)
 	}
 
 	from, to := strings.ToUpper(args[1]), strings.ToUpper(args[2])
@@ -91,6 +112,7 @@ func validArgs(args []string) (float64, string, string) {
 }
 
 var shortFormat = flag.Bool("short", false, "Print only the converted value")
+var saveCfg = flag.Bool("save", false, "save the \"to\" value")
 
 func main() {
 	flag.Parse()
@@ -103,5 +125,15 @@ func main() {
 		fmt.Printf("%.2f %s = %.2f %s\n", amount, fromCurrency, result, toCurrency)
 	} else {
 		fmt.Printf("%.2f\n", result)
+	}
+
+	if *saveCfg {
+		exec, err := os.Executable()
+		if err != nil {
+			handleError(err.Error())
+		}
+		if err := ioutil.WriteFile(filepath.Join(filepath.Dir(exec), CfgFile), []byte(to), 664); err != nil {
+			handleError(err.Error())
+		}
 	}
 }
